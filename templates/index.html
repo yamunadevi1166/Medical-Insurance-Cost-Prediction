@@ -1,0 +1,696 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthGuard | Insurance Cost Prediction</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #f2f8ff, #e4f8f3);
+            color: #253858;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            max-width: 1150px;
+            margin: auto;
+            padding: 24px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            color: white;
+            font-size: 27px;
+            background: linear-gradient(135deg, #1769d2, #0eaa8b);
+        }
+
+        .brand h2 {
+            color: #12305c;
+        }
+
+        .brand p,
+        .nav-label {
+            color: #6b7b93;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: auto;
+            padding: 20px 24px 35px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.3fr 0.7fr;
+            gap: 25px;
+            align-items: center;
+            margin: 15px 0 35px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            background: #d9f7ed;
+            color: #087d68;
+            border-radius: 30px;
+            padding: 9px 14px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+
+        .hero h1 {
+            color: #12305c;
+            font-size: clamp(32px, 4vw, 47px);
+            line-height: 1.15;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 span {
+            color: #0eaa8b;
+        }
+
+        .hero-description {
+            color: #6b7b93;
+            line-height: 1.8;
+            max-width: 550px;
+        }
+
+        .hero-art {
+            min-height: 190px;
+            display: grid;
+            place-items: center;
+            border-radius: 28px;
+            background: linear-gradient(135deg, #dceeff, #d8f9ed);
+            font-size: 80px;
+        }
+
+        .main-card {
+            display: grid;
+            grid-template-columns: 1fr 0.9fr;
+            gap: 30px;
+            background: white;
+            border: 1px solid #e1eaf5;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 15px 40px #244b7510;
+        }
+
+        .form-section {
+            padding-right: 25px;
+            border-right: 1px solid #e1eaf5;
+        }
+
+        .section-heading {
+            margin-bottom: 25px;
+        }
+
+        .section-heading h2 {
+            color: #12305c;
+            margin-bottom: 7px;
+        }
+
+        .section-heading p {
+            color: #6b7b93;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .field.full,
+        .predict-button {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            color: #334867;
+            font-size: 13px;
+            font-weight: 650;
+            margin-bottom: 8px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            height: 46px;
+            padding: 0 12px;
+            border: 1px solid #dce6f2;
+            border-radius: 10px;
+            background: #fbfdff;
+            color: #253858;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: 2px solid #c4e4ff;
+            border-color: #1769d2;
+        }
+
+        .predict-button {
+            height: 52px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(110deg, #1769d2, #0eaa8b);
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .predict-button:hover {
+            opacity: 0.92;
+        }
+
+        .result-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .result-card {
+            padding: 25px;
+            border: 1px solid #d7f2e7;
+            border-radius: 18px;
+            background: linear-gradient(145deg, #effcf7, #e1f8ef);
+        }
+
+        .result-card h3 {
+            color: #35576b;
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+
+        .amount {
+            color: #078c69;
+            font-size: clamp(28px, 4vw, 38px);
+            font-weight: 800;
+            overflow-wrap: anywhere;
+            margin-bottom: 15px;
+        }
+
+        .result-description {
+            color: #4c7869;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .empty-result {
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 25px;
+            border: 1px dashed #cbdff5;
+            border-radius: 18px;
+            background: #f3f9ff;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-result h3 {
+            color: #12305c;
+            margin-bottom: 10px;
+        }
+
+        .empty-result p {
+            color: #6b7b93;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .summary {
+            border: 1px solid #e1eaf5;
+            border-radius: 15px;
+            padding: 18px;
+        }
+
+        .summary h3 {
+            color: #12305c;
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 11px 0;
+            border-bottom: 1px solid #edf2f8;
+            font-size: 13px;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-row span:first-child {
+            color: #6b7b93;
+        }
+
+        .summary-row span:last-child {
+            color: #12305c;
+            font-weight: 650;
+            text-align: right;
+        }
+
+        .tip {
+            padding: 17px;
+            border-radius: 14px;
+            background: #eff6ff;
+        }
+
+        .tip h4 {
+            color: #1769d2;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .tip p {
+            color: #657994;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .bottom-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-top: 24px;
+        }
+
+        .bottom-item {
+            padding: 18px;
+            border: 1px solid #e1eaf5;
+            border-radius: 14px;
+            background: #ffffffd9;
+        }
+
+        .bottom-item strong {
+            display: block;
+            color: #12305c;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .bottom-item p {
+            color: #6b7b93;
+            font-size: 12px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 28px 10px 10px;
+            color: #6b7b93;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        footer strong {
+            color: #1769d2;
+        }
+
+        @media (max-width: 800px) {
+            .hero,
+            .main-card {
+                grid-template-columns: 1fr;
+            }
+
+            .form-section {
+                border-right: none;
+                border-bottom: 1px solid #e1eaf5;
+                padding-right: 0;
+                padding-bottom: 25px;
+            }
+
+            .hero-art {
+                min-height: 130px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page {
+                padding: 12px;
+            }
+
+            .navbar {
+                padding: 18px 12px;
+            }
+
+            .nav-label {
+                display: none;
+            }
+
+            .main-card {
+                padding: 18px;
+            }
+
+            .form-grid,
+            .bottom-features {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full,
+            .predict-button {
+                grid-column: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="navbar">
+    <div class="brand">
+        <div class="brand-icon">✚</div>
+        <div>
+            <h2>HealthGuard</h2>
+            <p>Smarter Health Decisions</p>
+        </div>
+    </div>
+
+    <div class="nav-label">Medical Cost Estimator</div>
+</header>
+
+<main class="page">
+
+    <section class="hero">
+        <div>
+            <div class="eyebrow">COST ESTIMATION</div>
+
+            <h1>
+                Medical Insurance<br>
+                <span>Cost Prediction</span>
+            </h1>
+
+            <p class="hero-description">
+                Enter your personal details and location to explore
+                a machine-learning-based insurance cost estimate.
+            </p>
+        </div>
+
+        <div class="hero-art">🛡️ 🩺</div>
+    </section>
+
+    <section class="main-card">
+
+        <div class="form-section">
+            <div class="section-heading">
+                <h2>👤 Enter Your Details</h2>
+                <p>Complete the fields below to submit your information.</p>
+            </div>
+
+            <form method="POST" class="form-grid">
+
+                <div class="field">
+                    <label for="age">Age</label>
+                    <input
+                        type="number"
+                        id="age"
+                        name="age"
+                        min="18"
+                        max="100"
+                        placeholder="e.g. 30"
+                        required>
+                </div>
+
+                <div class="field">
+                    <label for="sex">Sex</label>
+                    <select id="sex" name="sex" required>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="bmi">BMI</label>
+                    <input
+                        type="number"
+                        id="bmi"
+                        name="bmi"
+                        min="10"
+                        max="80"
+                        step="0.1"
+                        placeholder="e.g. 25.5"
+                        required>
+                </div>
+
+                <div class="field">
+                    <label for="children">Number of Children</label>
+                    <input
+                        type="number"
+                        id="children"
+                        name="children"
+                        min="0"
+                        max="20"
+                        placeholder="e.g. 2"
+                        required>
+                </div>
+
+                <div class="field">
+                    <label for="smoker">Smoker</label>
+                    <select id="smoker" name="smoker" required>
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="region">Indian State</label>
+                    <select id="region" name="region" required>
+                        <option value="Tamil Nadu">Tamil Nadu</option>
+                        <option value="Kerala">Kerala</option>
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="Telangana">Telangana</option>
+                        <option value="Andhra Pradesh">Andhra Pradesh</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="Delhi">Delhi</option>
+                    </select>
+                </div>
+
+                <div class="field full">
+                    <label for="city">City</label>
+                    <select id="city" name="city" required></select>
+                </div>
+
+                <button type="submit" class="predict-button">
+                    ✦ Predict Insurance Cost →
+                </button>
+
+            </form>
+        </div>
+
+        <div class="result-panel">
+
+            {% if prediction is not none %}
+
+            <div class="result-card">
+                <h3>Estimated Insurance Cost</h3>
+
+                <div class="amount">
+                    ₹{{ "{:,.2f}".format(prediction) }}
+                </div>
+
+                <p class="result-description">
+                    This is a machine-learning estimate for educational
+                    purposes. It is not an official insurance quote.
+                </p>
+            </div>
+
+            <div class="summary">
+                <h3>Your Input Summary</h3>
+
+                <div class="summary-row">
+                    <span>Age</span>
+                    <span>{{ request.form.get('age', '') }} years</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>Sex</span>
+                    <span>{{ request.form.get('sex', '')|title }}</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>BMI</span>
+                    <span>{{ request.form.get('bmi', '') }}</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>Children</span>
+                    <span>{{ request.form.get('children', '') }}</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>Smoker</span>
+                    <span>{{ request.form.get('smoker', '')|title }}</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>State</span>
+                    <span>{{ request.form.get('region', '') }}</span>
+                </div>
+
+                <div class="summary-row">
+                    <span>City</span>
+                    <span>{{ request.form.get('city', '') }}</span>
+                </div>
+            </div>
+
+            {% else %}
+
+            <div class="empty-result">
+                <div class="empty-icon">📊</div>
+                <h3>Your Prediction Awaits</h3>
+                <p>
+                    Complete the form and click Predict Insurance Cost.
+                    Your estimate will appear here.
+                </p>
+            </div>
+
+            {% endif %}
+
+            <div class="tip">
+                <h4>💡 Important Information</h4>
+                <p>
+                    The dataset currently used in this project is based
+                    on US insurance records. Changing the location fields
+                    does not make its predictions representative of
+                    actual Indian insurance prices.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="bottom-features">
+        <div class="bottom-item">
+            <strong>Machine Learning</strong>
+            <p>Linear Regression</p>
+        </div>
+
+        <div class="bottom-item">
+            <strong>Instant Results</strong>
+            <p>Prediction through a web form</p>
+        </div>
+
+        <div class="bottom-item">
+            <strong>Location Selection</strong>
+            <p>Indian states and cities</p>
+        </div>
+    </section>
+
+    <footer>
+        <strong>✚ HealthGuard</strong><br>
+        Medical Insurance Cost Prediction<br>
+        Educational project — not an official insurance quotation.
+    </footer>
+
+</main>
+
+<script>
+    const cities = {
+        "Tamil Nadu": [
+            "Chennai",
+            "Coimbatore",
+            "Madurai",
+            "Thoothukudi",
+            "Tiruchirappalli",
+            "Salem",
+            "Tirunelveli"
+        ],
+        "Kerala": [
+            "Kochi",
+            "Thiruvananthapuram",
+            "Kozhikode",
+            "Thrissur"
+        ],
+        "Karnataka": [
+            "Bengaluru",
+            "Mysuru",
+            "Mangaluru",
+            "Hubballi"
+        ],
+        "Telangana": [
+            "Hyderabad",
+            "Warangal",
+            "Nizamabad",
+            "Karimnagar"
+        ],
+        "Andhra Pradesh": [
+            "Vijayawada",
+            "Visakhapatnam",
+            "Guntur",
+            "Tirupati"
+        ],
+        "Maharashtra": [
+            "Mumbai",
+            "Pune",
+            "Nagpur",
+            "Nashik"
+        ],
+        "Delhi": [
+            "New Delhi",
+            "Dwarka",
+            "Rohini",
+            "Saket"
+        ]
+    };
+
+    const stateSelect = document.getElementById("region");
+    const citySelect = document.getElementById("city");
+
+    function updateCities() {
+        const selectedState = stateSelect.value;
+        citySelect.innerHTML = "";
+
+        cities[selectedState].forEach(function(city) {
+            const option = document.createElement("option");
+            option.value = city;
+            option.textContent = city;
+            citySelect.appendChild(option);
+        });
+    }
+
+    stateSelect.addEventListener("change", updateCities);
+    updateCities();
+</script>
+
+</body>
+</html>
